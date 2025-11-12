@@ -1,0 +1,15 @@
+{
+    "name": "root/nginx",
+    "autoload": {
+        "psr-4": {
+            "Root\\Nginx\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Davi Cheron Da Silva",
+            "email": "davicheron201008@gmail.com"
+        }
+    ],
+    "require": {}
+}
