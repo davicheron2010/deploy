@@ -15,10 +15,11 @@
   body {
     background: #d90429; /* fundo vermelho fixo */
     color: white;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh; /* deixa crescer conforme o conteúdo */
+    overflow-x: hidden; /* permite rolar verticalmente */
     font-family: 'Poppins', sans-serif;
     text-align: center;
+    padding-bottom: 50px; /* espaçamento no final da tela */
   }
 
   h1 {
@@ -47,6 +48,7 @@
     height: 100%;
     overflow: hidden;
     z-index: 0;
+    pointer-events: none;
   }
 
   .heart {
@@ -145,6 +147,34 @@
     transition: opacity 2s ease-in-out;
     text-shadow: 0 0 10px #fff;
   }
+
+  /* Ajuste para celular */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 2em;
+      margin-top: 30px;
+    }
+
+    h2 {
+      font-size: 1em;
+      margin: 10px 20px;
+    }
+
+    .message {
+      font-size: 1em;
+      width: 90%;
+    }
+
+    .button {
+      padding: 12px 25px;
+      font-size: 1em;
+    }
+
+    .final-message {
+      font-size: 1.2em;
+      margin: 30px 10px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -156,9 +186,9 @@
 
 <div class="message-box">
   <div class="message">💖 Te amo</div>
-  <div class="message">💖 as vezes nem falo, mas amo tudo que você faz por mim</div>
+  <div class="message">💖 Às vezes nem falo, mas amo tudo que você faz por mim</div>
   <div class="message">💖 Cê sabe que sem você nada anda direito, né</div>
-  <div class="message">💖 Obrigado por tudo, mamãe. Você é o meu coração fora do peito(ou um transplantado)</div>
+  <div class="message">💖 Obrigado por tudo, mamãe. Você é o meu coração fora do peito (ou um transplantado 😄)</div>
 </div>
 
 <button class="button" onclick="revealMessage()">Clique aqui, mamãe 💌</button>
@@ -167,7 +197,6 @@
   ❤️ Te amo infinitamente, mãe!  
   <br>Você é a melhor mãe do mundo! ❤️
 </div>
-
 
 <script>
   const heartsContainer = document.querySelector('.hearts');
@@ -214,11 +243,9 @@
   // cria corações contínuos
   setInterval(createHeart, 300);
 
-  // revela mensagem final e toca música
+  // revela mensagem final
   function revealMessage() {
     finalMessage.style.opacity = 1;
-    music.volume = 0.5;
-    music.play();
   }
 </script>
 </body>
