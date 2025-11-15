@@ -27,7 +27,7 @@ class Cliente extends Base
                 'titulo' => 'Página inicial'
             ];
             return $this->getTwig()
-                ->render($response, $this->setView('cliente'), $dadosTemplate)
+                ->render($response, $this->setView('cadastrocliente'), $dadosTemplate)
                 ->withHeader('Content-Type', 'text/html')
                 ->withStatus(200);
         } catch (\Exception $e) {

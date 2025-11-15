@@ -25,7 +25,7 @@ class User extends Base
         ];
 
         return $this->getTwig()
-            ->render($response, $this->setView('caduser'), $dadosTemplate)
+            ->render($response, $this->setView('cadastrouser'), $dadosTemplate)
             ->withHeader('Content-Type', 'text/html')
             ->withStatus(200);
     }
