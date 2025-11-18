@@ -1,100 +1,108 @@
 <?php
 
-namespace app\database\builder;
+namespace app\database\builder; // Define o namespace da classe
 
-use app\database\Connection;
+use app\database\Connection; // Importa a classe de conexão com o banco
 
-class SelectQuery
+class SelectQuery // Início da classe que monta SELECT
 {
-    private ?string $table = null;
-    private ?string $fields = null;
-    private string $order;
-    private int $limit = 10;
-    private int $offset = 0;
-    private array $where = [];
-    private array $binds = [];
-    private string $limits;
-    public static function select(string $fields = '*'): ?self
+    private string $fields;   // Campos do SELECT
+    private string $table;    // Nome da tabela
+    private array $where = []; // Condições WHERE
+    private array $binds = []; // Valores para bind
+    private string $order;     // Parte ORDER BY
+    private int $limit;        // Limite de registros
+    private int $offset;       // Offset dos registros
+    private string $limits;    // Parte LIMIT/OFFSET
+
+    public static function select(string $fields = '*'): self // Método estático para iniciar SELECT
     {
-        $self = new self;
-        $self->fields = $fields;
-        return $self;
+        $self = new self;      // Cria instância da classe
+        $self->fields = $fields; // Define campos do SELECT
+        return $self;          // Retorna a instância
     }
-    public function from(string $table): ?self
+
+    public function from(string $table): self // Define a tabela
     {
-        $this->table = '';
-        $this->table = $table;
-        return $this;
+        $this->table = $table; // Armazena nome da tabela
+        return $this;          // Retorna instância para encadeamento
     }
-    public function where(string $field, string $operator, string|int $value, ?string $logic = null): ?self
+
+    public function where(string $field, string $operator, string|int $value, ?string $logic = null): self // Adiciona condição WHERE
     {
-        # Define um placeholder baseado no nome do campo
-        $placeHolder = '';
-        $placeHolder = $field;
-        # Caso o campo venha com um alias (ex: "u.id"), extrai apenas o nome da coluna (ex: "id")
-        if (str_contains($placeHolder, '.')) {
-            $placeHolder = substr($field, strpos($field, '.') + 1);
+        $placeholder = '';     // Cria placeholder inicial
+        $placeholder = $field; // Usa o campo como base do placeholder
+
+        if (str_contains($placeholder, '.')) { // Se tiver alias (ex: t.nome)
+            $placeholder = substr($field, strpos($field, '.') + 1); // Remove prefixo
         }
-        # Monta a expressão da cláusula WHERE com o placeholder e operador lógico
-        $this->where[] = "{$field} {$operator} :{$placeHolder} {$logic}";
-        # Associa o valor ao placeholder no array de binds
-        $this->binds[$placeHolder] = $value;
-        # Retorna a própria instância para encadeamento
-        return $this;
+
+        $this->where[] = "{$field}  {$operator} :{$placeholder} {$logic}"; // Adiciona condição formatada
+        $this->binds[$placeholder] = $value; // Guarda valor do bind
+        return $this; // Retorna instância
     }
-    public function order(string $field, string $value): ?self
+
+    public function order(string $field, string $typeOrder = 'asc'): self // Define ORDER BY
     {
-        $this->order = " order by {$field} {$value}";
-        return $this;
+        $this->order = " order by {$field}  {$typeOrder}"; // Monta ORDER BY
+        return $this; // Encadeamento
     }
-    public function createQuery()
+
+    public function limit(int $limit, int $offset = 0): self // Define LIMIT e OFFSET
     {
-        if (!$this->fields) {
-            throw new \Exception("Por favor informe os campos a serem selecionados na consulta");
+        $this->limit = $limit; // Armazena limite
+        $this->offset = $offset; // Armazena offset
+        $this->limits = " limit {$this->limit} offset {$this->offset} "; // Monta cláusula LIMIT
+        return $this; // Encadeamento
+    }
+
+    private function createQuery(): string // Monta a query completa
+    {
+        if (!$this->fields) { // Verifica se campos foram definidos
+            throw new \Exception("Para realizar uma consulta SQL é necessário informa os campos da consulta");
         }
-        if (!$this->table) {
-            throw new \Exception("Por favor informe o nome da tabela");
+
+        if (!$this->table) { // Verifica se a tabela foi definida
+            throw new \Exception("Para realizar a consulta SQL é necessário informa a nome da tabela.");
         }
-        $query = '';
-        $query = 'select ';
-        $query .= $this->fields . ' from ';
-        $query .= $this->table;
-        $query .= (isset($this->where) and (count($this->where) > 0)) ? ' where ' . implode(' ', $this->where) : '';
-        $query .= $this->order ?? '';
-        $query .= $this->limits ?? '';
-        return $query;
+
+        $query = '';           // Inicia query vazia
+        $query = 'select ';    // Inicia SELECT
+        $query .= $this->fields . ' from '; // Adiciona campos e FROM
+        $query .= $this->table; // Adiciona tabela
+        $query .= (isset($this->where) and (count($this->where) > 0)) ? ' where ' . implode(' ', $this->where) : ''; // Monta WHERE se existir
+        $query .= $this->order ?? ''; // Adiciona ORDER
+        $query .= $this->limits ?? ''; // Adiciona LIMIT/OFFSET
+        return $query; // Retorna SQL final
     }
-    public function limit(int $limit, int $offset): ?self
+
+    public function fetch() // Executa SELECT e retorna um registro
     {
-        $this->limit = $limit;
-        $this->offset = $offset;
-        $this->limits = " limit {$this->limit} offset {$this->offset}";
-        return $this;
-    }
-    public function fetch($IsArray = true)
-    {
-        $query = '';
-        $query = $this->createQuery();
+        $query = '';           // Inicia query vazia
+        $query = $this->createQuery(); // Monta query final
+
         try {
-            $connection = Connection::connection();
-            $prepare = $connection->prepare($query);
-            $prepare->execute($this->binds ?? []);
-            return $IsArray ? $prepare->fetch(\PDO::FETCH_ASSOC) : $prepare->fetch(\PDO::FETCH_OBJ);
-        } catch (\PDOException $e) {
-            throw new \Exception("Restrição: {$e->getMessage()}");
+            $connection = Connection::connection(); // Abre conexão com banco
+            $prepare = $connection->prepare($query); // Prepara query
+            $prepare->execute($this->bind ?? []); // Executa com binds
+            return $prepare->fetch(\PDO::FETCH_ASSOC); // Retorna linha única
+        } catch (\Exception $e) { // Captura erros
+            throw new \Exception("Restrição: " . $e->getMessage()); // Lança exceção personalizada
         }
     }
-    public function fetchAll($IsArray = true)
+
+    public function fetchAll() // Executa SELECT e retorna todos registros
     {
-        $query = '';
-        $query = $this->createQuery();
+        $query = '';           // Inicia query vazia
+        $query = $this->createQuery(); // Monta query final
+
         try {
-            $connection = Connection::connection();
-            $prepare = $connection->prepare($query);
-            $prepare->execute($this->binds ?? []);
-            return $IsArray ? $prepare->fetchAll(\PDO::FETCH_ASSOC) : $prepare->fetchAll(\PDO::FETCH_OBJ);
-        } catch (\PDOException $e) {
-            throw new \Exception("Restrição: {$e->getMessage()}");
+            $connection = Connection::connection(); // Abre conexão
+            $prepare = $connection->prepare($query); // Prepara
+            $prepare->execute($this->bind ?? []); // Executa com binds
+            return $prepare->fetchAll(\PDO::FETCH_ASSOC); // Retorna todos
+        } catch (\Exception $e) { // Captura erro
+            throw new \Exception("Restrição: " . $e->getMessage()); // Exceção personalizada
         }
     }
 }

@@ -4,6 +4,7 @@ namespace app\controller;
 
 use app\database\builder\DeleteQuery;
 use app\database\builder\InsertQuery;
+use app\database\builder\SelectQuery;
 
 class User extends Base
 {
@@ -25,7 +26,7 @@ class User extends Base
         ];
 
         return $this->getTwig()
-            ->render($response, $this->setView('cadastrouser'), $dadosTemplate)
+            ->render($response, $this->setView('caduser'), $dadosTemplate)
             ->withHeader('Content-Type', 'text/html')
             ->withStatus(200);
     }
@@ -75,5 +76,72 @@ class User extends Base
             echo "Erro: " . $th->getMessage();
             die;
         }
+    }
+    public function listuser($request, $response)
+    {
+        $form = $request->getParsedBody();
+        # O índice da coluna para ordenação
+        $order = $form['order'][0]['column'];
+        # O tipo de ordenação (ascendente ou descendente)
+        $orderType = $form['order'][0]['dir'];
+        # O índice do primeiro registro da página
+        $form['start'];
+        # A quantidade de registros por página
+        $form['length'];
+        # O termo de pesquisa
+        $form['search']['value'];
+        # O termo pesquisado
+        $term = $form['search']['value'];
+
+        $query = SelectQuery::select('id, nome, sobrenome, cpf, rg')->from('usuario');
+
+        if (!is_null($term) && ($term !== '')) {
+            $query->where('nome', 'ilike', $term, 'or')
+                  ->where('sobrenome', 'ilike', $term );
+
+        }
+
+        $users = $query->fetchAll();
+
+        $userData = [];
+        foreach ($users as $key => $value) {
+            $usersData[$key] = [
+                $value['id'],
+                $value['nome'],
+                $value['sobrenome'],
+                $value['cpf'],
+                $value['rg'],
+                "<button class='btn btn-sm btn-warning'><i class='fa-solid fa-pen-to-square'></i>Editar</button>
+                 <button class='btn btn-sm btn-danger btn-delete'><i class='fa-solid fa-trash'></i>Excluir</button>"
+            ];
+           
+        }
+
+        $data =[
+            'status' => true,
+            'recordsTotal' => count($users),
+            'recordsFiltered' => count($users),
+            'data' => $usersData
+        ];
+        $payload = json_encode($data);
+
+        $response->getBody()->write($payload);
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(201);
+
+        var_dump($form);
+
+        /*
+        order[0][column]
+        order[0][dir]
+        order[0][name]
+        start
+        length
+        search[value]
+    }
+
+    */
     }
 }
