@@ -59,11 +59,11 @@ class SelectQuery // Início da classe que monta SELECT
     private function createQuery(): string // Monta a query completa
     {
         if (!$this->fields) { // Verifica se campos foram definidos
-            throw new \Exception("Para realizar uma consulta SQL é necessário informa os campos da consulta");
+            throw new \Exception("Para realizar uma consulta SQL é necessário informar os campos da consulta");
         }
 
         if (!$this->table) { // Verifica se a tabela foi definida
-            throw new \Exception("Para realizar a consulta SQL é necessário informa a nome da tabela.");
+            throw new \Exception("Para realizar a consulta SQL é necessário informar o nome da tabela.");
         }
 
         $query = '';           // Inicia query vazia
@@ -84,7 +84,7 @@ class SelectQuery // Início da classe que monta SELECT
         try {
             $connection = Connection::connection(); // Abre conexão com banco
             $prepare = $connection->prepare($query); // Prepara query
-            $prepare->execute($this->bind ?? []); // Executa com binds
+            $prepare->execute($this->binds ?? []); // Executa com binds
             return $prepare->fetch(\PDO::FETCH_ASSOC); // Retorna linha única
         } catch (\Exception $e) { // Captura erros
             throw new \Exception("Restrição: " . $e->getMessage()); // Lança exceção personalizada
@@ -99,7 +99,7 @@ class SelectQuery // Início da classe que monta SELECT
         try {
             $connection = Connection::connection(); // Abre conexão
             $prepare = $connection->prepare($query); // Prepara
-            $prepare->execute($this->bind ?? []); // Executa com binds
+            $prepare->execute($this->binds ?? []); // Executa com binds
             return $prepare->fetchAll(\PDO::FETCH_ASSOC); // Retorna todos
         } catch (\Exception $e) { // Captura erro
             throw new \Exception("Restrição: " . $e->getMessage()); // Exceção personalizada

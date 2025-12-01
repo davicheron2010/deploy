@@ -26,7 +26,7 @@ class User extends Base
         ];
 
         return $this->getTwig()
-            ->render($response, $this->setView('caduser'), $dadosTemplate)
+            ->render($response, $this->setView('cadastrouser'), $dadosTemplate)
             ->withHeader('Content-Type', 'text/html')
             ->withStatus(200);
     }
@@ -84,6 +84,19 @@ class User extends Base
         $order = $form['order'][0]['column'];
         # O tipo de ordenação (ascendente ou descendente)
         $orderType = $form['order'][0]['dir'];
+        $start = $form['start'];
+        #Limite de registro a serem retornados do banco de dados LIMIT
+        $length = $form['length'];
+        $fields = [
+            0 => 'id',
+            1 => 'nome',
+            2 => 'sobrenome',
+            3 => 'cpf'
+        ];
+        #Capturamos o nome do capo a ser ordenado.
+        $orderField = $fields[$order];
+        #O termo pesquisado
+        $term = $form['search']['value'];
         # O índice do primeiro registro da página
         $form['start'];
         # A quantidade de registros por página
@@ -96,12 +109,17 @@ class User extends Base
         $query = SelectQuery::select('id, nome, sobrenome, cpf, rg')->from('usuario');
 
         if (!is_null($term) && ($term !== '')) {
-            $query->where('nome', 'ilike', $term, 'or')
-                  ->where('sobrenome', 'ilike', $term );
-
+            $query->where('nome', 'ilike', "%{$term}%", 'or')
+                ->where('sobrenome', 'ilike', "%{$term}%");
+        }
+        if (!is_null($order) && ($order !== '')) {
+            $query
+                ->order($orderField, $orderType);
         }
 
-        $users = $query->fetchAll();
+        $users = $query
+            ->limit($length, $start)
+            ->fetchAll();
 
         $userData = [];
         foreach ($users as $key => $value) {
@@ -114,10 +132,9 @@ class User extends Base
                 "<button class='btn btn-sm btn-warning'><i class='fa-solid fa-pen-to-square'></i>Editar</button>
                  <button class='btn btn-sm btn-danger btn-delete'><i class='fa-solid fa-trash'></i>Excluir</button>"
             ];
-           
         }
 
-        $data =[
+        $data = [
             'status' => true,
             'recordsTotal' => count($users),
             'recordsFiltered' => count($users),
@@ -130,18 +147,5 @@ class User extends Base
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(201);
-
-        var_dump($form);
-
-        /*
-        order[0][column]
-        order[0][dir]
-        order[0][name]
-        start
-        length
-        search[value]
-    }
-
-    */
     }
 }
