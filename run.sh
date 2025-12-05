@@ -35,17 +35,9 @@ configurar_postgresql() {
     END
     \$\$;"
 
-    sudo -u postgres psql -c "DO \$\$
-    BEGIN
-        IF NOT EXISTS (
-            SELECT FROM pg_database WHERE datname = '$NOME_BANCO'
-        ) THEN
+    sudo -u postgres psql -c "
             CREATE DATABASE $NOME_BANCO OWNER $NOME_USUARIO;
-        ELSE
-            RAISE NOTICE 'Banco já existe: $NOME_BANCO';
-        END IF;
-    END
-    \$\$;"
+;"
 
 }
 
