@@ -10,9 +10,9 @@ composer update --no-dev --no-progress -a
 composer upgrade --no-dev --no-progress -a
 composer dump-autoload -o
 
-NOME_USUARIO="junior"
-SENHA_USUARIO="junior"
-NOME_BANCO="junior"
+NOME_USUARIO="davi"
+SENHA_USUARIO="davi"
+NOME_BANCO="davi"
 
 configurar_postgresql() {
 
