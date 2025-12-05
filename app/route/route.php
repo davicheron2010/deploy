@@ -1,6 +1,5 @@
 <?php
 
-use app\controller\Cliente;
 use app\controller\User;
 use app\controller\Home;
 use app\controller\Login;
@@ -22,11 +21,5 @@ $app->group('/usuario', function (RouteCollectorProxy $group) {
     $group->get('/cadastro', User::class . ':cadastro');
     $group->post('/insert', User::class . ':insert');
     $group->post('/delete', User::class . ':delete');
-    $group->post('/listuser', User::class . ':listuser');
-});
-$app->group('/cliente', function (RouteCollectorProxy $group) {
-    $group->get('/lista', Cliente::class . ':lista');
-    $group->get('/cadastro', Cliente::class . ':cadastro');
-    $group->post('/insert', Cliente::class . ':insert');
-    $group->post('/delete', Cliente::class . ':delete');
+    $group->post('/listauser', User::class . ':listauser');
 });

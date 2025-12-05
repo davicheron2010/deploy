@@ -2,63 +2,166 @@
 
 namespace app\controller;
 
-use app\database\builder\DeleteQuery;
-use app\database\builder\InsertQuery;
 use app\database\builder\SelectQuery;
+use app\database\builder\InsertQuery;
+use app\database\builder\DeleteQuery;
 
 class User extends Base
 {
+
     public function lista($request, $response)
     {
-        $dadosTemplate = [
-            'titulo' => 'Lista de Usuários'
-        ];
 
-        return $this->getTwig()
-            ->render($response, $this->setView('listuser'), $dadosTemplate)
-            ->withHeader('Content-Type', 'text/html')
-            ->withStatus(200);
-    }
-    public function cadastro($request, $response)
-    {
         $dadosTemplate = [
-            'titulo' => 'Cadastro de Usuários'
+            'titulo' => 'Lista de usuário'
         ];
-
         return $this->getTwig()
-            ->render($response, $this->setView('cadastrouser'), $dadosTemplate)
+            ->render($response, $this->setView('listauser'), $dadosTemplate)
             ->withHeader('Content-Type', 'text/html')
             ->withStatus(200);
     }
     public function insert($request, $response)
     {
+
         try {
             $nome = $_POST['nome'];
+
             $sobrenome = $_POST['sobrenome'];
-            $senha = $_POST['senha'];
             $cpf = $_POST['cpf'];
             $rg = $_POST['rg'];
-
 
             $FieldsAndValues = [
                 'nome' => $nome,
                 'sobrenome' => $sobrenome,
-                'senha' => $senha,
                 'cpf' => $cpf,
                 'rg' => $rg
             ];
-
-            $IsSave = InsertQuery::table('usuario')->save($FieldsAndValues);
-            if (!$IsSave) {
-                echo 'Erro ao salvar';
+            if (is_null($nome) || $nome === '') {
+                echo json_encode(['status' => false, 'msg' => 'Por favor informe o nome!', 'id' => 0]);
                 die;
             }
-            echo "Salvo com sucesso!";
+            if (is_null($sobrenome) ||  $sobrenome === '') {
+                echo json_encode(['status' => false, 'msg' => 'Por favor informe o sobrenome!', 'id' => 0]);
+                die;
+            }
+            if (is_null($cpf) || $cpf === '') {
+                echo json_encode(['status' => false, 'msg' => 'Por favor informe o cpf!', 'id' => 0]);
+                die;
+            }
+            if (is_null($rg) || $rg === '') {
+                echo json_encode(['status' => false, 'msg' => 'Por favor informe o rg!', 'id' => 0]);
+                die;
+            }
+            $IsSave = InsertQuery::table('usuario')->save($FieldsAndValues);
+
+            if (!$IsSave) {
+                echo json_encode(['status' => false, 'msg' => $IsSave, 'id' => 0]);
+                die;
+            }
+            echo json_encode(['status' => true, 'msg' => 'Salvo com sucesso!', 'id' => 0]);
             die;
         } catch (\Throwable $th) {
             //throw $th;
         }
     }
+    public function cadastro($request, $response)
+    {
+        $dadosTemplate = [
+            'titulo' => 'Cadastro de usuário'
+        ];
+        return $this->getTwig()
+            ->render($response, $this->setView('user'), $dadosTemplate)
+            ->withHeader('Content-Type', 'text/html')
+            ->withStatus(200);
+    }
+    public function listauser($request, $response)
+    {
+        # Captura todas as variáveis de forma segura
+        $form = $request->getParsedBody();
+
+        # Ordenação
+        $order = $form['order'][0]['column'];
+        $orderType = $form['order'][0]['dir'];
+
+        # Paginação
+        $start = $form['start'];
+        $length = $form['length'];
+
+        # Mapeamento de colunas para ordenação
+        $fields = [
+            0 => 'id',
+            1 => 'nome',
+            2 => 'sobrenome',
+            3 => 'cpf',
+            4 => 'email',
+            5 => 'celular',
+            6 => 'whatsapp'
+        ];
+
+        # Coluna escolhida
+        $orderField = $fields[$order];
+
+        # Termo pesquisado
+        $term = $form['search']['value'];
+
+        # Agora a busca é feita na VIEW
+        $query = SelectQuery::select('*')->from('vw_usuario_contatos');
+
+        # Filtros de pesquisa
+        if (!empty($term)) {
+
+            $query->where('nome', 'ilike', "%{$term}%", 'or')
+                ->where('sobrenome', 'ilike', "%{$term}%", 'or')
+                ->where('cpf', 'ilike', "%{$term}%", 'or')
+                ->where('email', 'ilike', "%{$term}%", 'or')
+                ->where('celular', 'ilike', "%{$term}%", 'or')
+                ->where('whatsapp', 'ilike', "%{$term}%");
+        }
+
+        # Ordenação dinâmica
+        if (!empty($order)) {
+            $query->order($orderField, $orderType);
+        }
+
+        # Paginação
+        $users = $query
+            ->limit($length, $start)
+            ->fetchAll();
+
+        # Montagem dos dados
+        $userData = [];
+        foreach ($users as $key => $value) {
+            $userData[$key] = [
+                $value['id'],
+                $value['nome'],
+                $value['sobrenome'],
+                $value['cpf'],
+                $value['email'] ?? '',      // deixa em branco se NULL
+                $value['celular'] ?? '',    // deixa em branco se NULL
+                $value['whatsapp'] ?? '',   // deixa em branco se NULL
+                "<button class='btn btn-warning'>Editar</button>
+         <button type='button' onclick='Delete(" . $value['id'] . ");' class='btn btn-danger'>Excluir</button>"
+            ];
+        }
+
+
+        # Resposta final
+        $data = [
+            'status' => true,
+            'recordsTotal' => count($users),
+            'recordsFiltered' => count($users),
+            'data' => $userData
+        ];
+
+        $payload = json_encode($data);
+
+        $response->getBody()->write($payload);
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+    }
+
     public function delete($request, $response)
     {
         try {
@@ -66,86 +169,16 @@ class User extends Base
             $IsDelete = DeleteQuery::table('usuario')
                 ->where('id', '=', $id)
                 ->delete();
+
             if (!$IsDelete) {
-                echo 'Erro ao deletar';
+                echo json_encode(['status' => false, 'msg' => $IsDelete, 'id' => $id]);
                 die;
             }
-            echo "Deletado com sucesso!";
+            echo json_encode(['status' => true, 'msg' => 'Removido com sucesso!', 'id' => $id]);
             die;
         } catch (\Throwable $th) {
             echo "Erro: " . $th->getMessage();
             die;
         }
-    }
-    public function listuser($request, $response)
-    {
-        $form = $request->getParsedBody();
-        # O índice da coluna para ordenação
-        $order = $form['order'][0]['column'];
-        # O tipo de ordenação (ascendente ou descendente)
-        $orderType = $form['order'][0]['dir'];
-        $start = $form['start'];
-        #Limite de registro a serem retornados do banco de dados LIMIT
-        $length = $form['length'];
-        $fields = [
-            0 => 'id',
-            1 => 'nome',
-            2 => 'sobrenome',
-            3 => 'cpf'
-        ];
-        #Capturamos o nome do capo a ser ordenado.
-        $orderField = $fields[$order];
-        #O termo pesquisado
-        $term = $form['search']['value'];
-        # O índice do primeiro registro da página
-        $form['start'];
-        # A quantidade de registros por página
-        $form['length'];
-        # O termo de pesquisa
-        $form['search']['value'];
-        # O termo pesquisado
-        $term = $form['search']['value'];
-
-        $query = SelectQuery::select('id, nome, sobrenome, cpf, rg')->from('usuario');
-
-        if (!is_null($term) && ($term !== '')) {
-            $query->where('nome', 'ilike', "%{$term}%", 'or')
-                ->where('sobrenome', 'ilike', "%{$term}%");
-        }
-        if (!is_null($order) && ($order !== '')) {
-            $query
-                ->order($orderField, $orderType);
-        }
-
-        $users = $query
-            ->limit($length, $start)
-            ->fetchAll();
-
-        $userData = [];
-        foreach ($users as $key => $value) {
-            $usersData[$key] = [
-                $value['id'],
-                $value['nome'],
-                $value['sobrenome'],
-                $value['cpf'],
-                $value['rg'],
-                "<button class='btn btn-sm btn-warning'><i class='fa-solid fa-pen-to-square'></i>Editar</button>
-                 <button class='btn btn-sm btn-danger btn-delete'><i class='fa-solid fa-trash'></i>Excluir</button>"
-            ];
-        }
-
-        $data = [
-            'status' => true,
-            'recordsTotal' => count($users),
-            'recordsFiltered' => count($users),
-            'data' => $usersData
-        ];
-        $payload = json_encode($data);
-
-        $response->getBody()->write($payload);
-
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(201);
     }
 }

@@ -16,19 +16,29 @@
                 <div class="col-12">
                     <h1><i class="fa-solid fa-users me-2"></i>
                         Usuarios Cadastrados
-                    </h1>
+                    </h1>                                        
+                    <div class="col-6 mt-3">
+                        <div class="form-floating mb-3">
+                            <input type="search" class="form-control fs" id="pesquisa" name="pesquisa"
+                                placeholder="Pesquisar">
+                            <label for="pesquisa"><i class="fa-solid fa-magnifying-glass"></i>
+                                Digite seu Nome
+                            </label>
+                        </div>
+                    </div>
                     <table class="table table-striped" id="tabela">
                         <thead>
                             <tr>
-                                <th><i class="fa-solid fa-fingerprint"></i>Código</th>
-                                <th><i class="fa-solid fa-user"></i>Nome</th>
-                                <th><i class="fa-solid fa-user"></i>Sobrenome</th>
-                                <th><i class="fa-solid fa-id-card"></i>CPF</th>
-                                <th><i class="fa-solid fa-id-card"></i>Rg</th>
-                                <th><i class="fa-solid fa-cog"></i>Ações</th>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>Sobrenome</th>
+                                <th>CPF</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th>WhatsApp</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
-
                     </table>
                 </div>
             </div>
@@ -37,5 +47,5 @@
     {% endblock %}
     {% block script %}
     {% include "script.html" %}
-    <script defer type="module" src="/js/listuser.js"></script>
+    <script defer type="module" src="/js/listauser.js"></script>
     {% endblock %}
