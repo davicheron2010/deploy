@@ -122,123 +122,175 @@
             </div>
         </div>
     </form>
-    <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            /* ← Mude isso */
-            padding-top: 60px;
-            /* ← Pode ajustar */
-        }
-        .login-container {
-            width: 420px;
-            padding: 40px 35px;
-            background: rgba(255, 255, 255, 0.90);
-            border-radius: 18px;
+   <style>
+/* ----------------------------- */
+/*       🌙 DARK MODE CLEAN      */
+/* ----------------------------- */
 
-            box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(8px);
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: #0f172a; /* dark mais bonito */
+    font-family: Arial, sans-serif;
+}
 
-            animation: fadeIn 0.5s ease;
-        }
+/* Container */
+.login-container {
+    width: 420px;
+    max-width: 100%;
+    padding: 40px 35px;
+    background: #1e293b;
+    border-radius: 18px;
+    box-shadow: 0px 14px 40px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.5s ease;
+}
 
-        h3 {
-            color: #2f3b4a;
-            letter-spacing: 1px;
-        }
+/* Títulos */
+h2, .modal-title {
+    color: #f8fafc;
+    text-align: center;
+}
 
-        .form-control {
-            background: #f4f6f8;
-            border: 1px solid #d0d7df;
-            transition: 0.2s;
-            border-radius: 8px;
-        }
+/* ----------------------------- */
+/*      🔧 INPUTS DARK FIX       */
+/* ----------------------------- */
 
-        .form-control:focus {
-            border-color: #6c7a91;
-            box-shadow: 0 0 0 2px rgba(108, 122, 145, 0.25);
-            background: #ffffff;
-        }
+.form-control {
+    background: #334155 !important;  
+    color: #f1f5f9 !important;        
+    border: 1px solid #475569 !important;
+    border-radius: 10px !important;
+    transition: 0.25s;
+}
 
-        .btn-primary {
-            background: #2f3b4a !important;
-            border-color: #2f3b4a !important;
-            font-weight: 600;
-            border-radius: 8px;
-        }
+/* Corrige autofill do Chrome (que deixava fundo claro) */
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f1f5f9 !important;
+    box-shadow: 0 0 0px 1000px #334155 inset !important;
+    caret-color: #f1f5f9 !important;
+}
 
-        .btn-primary:hover {
-            background: #1f2833 !important;
-            border-color: #1f2833 !important;
-        }
+/* Foco escuro */
+.form-control:focus {
+    background: #475569 !important;
+    color: #ffffff !important;
+    border-color: #818cf8 !important;  
+    box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.35) !important;
+}
 
-        .btn-outline-secondary {
-            border-radius: 8px;
-            font-weight: 500;
-            color: #4a5868;
-            border-color: #b7c2cd;
-        }
+/* ----------------------------- */
+/*  🛠️ CORREÇÃO DO LABEL BRANCO */
+/* ----------------------------- */
 
-        .btn-outline-secondary:hover {
-            background: #e7ecf1;
-            color: #2f3b4a;
-            border-color: #a8b4c0;
-        }
+.form-floating > label {
+    color: #cbd5e1 !important;
+    background: transparent !important;
+}
 
-        .btn-outline-primary {
-            border-radius: 8px;
-            border-color: #2f3b4a;
-            color: #2f3b4a;
-            font-weight: 500;
-        }
+.form-floating > .form-control:focus ~ label {
+    background: transparent !important;
+    color: #c7d2fe !important;
+}
 
-        .btn-outline-primary:hover {
-            background: #2f3b4a;
-            color: white;
-        }
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+}
 
-        .modal-content {
-            border-radius: 14px;
-            padding: 5px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
+/* Bootstrap cria um fundo branco aqui — removemos */
+.form-floating label::after {
+    background: transparent !important;
+}
 
-        .modal-header {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
+/* ----------------------------- */
+/*            BOTÕES             */
+/* ----------------------------- */
 
-        .modal-title {
-            font-weight: 600;
-            color: #2f3b4a;
-        }
+.btn-primary {
+    background: linear-gradient(145deg, #6366f1, #4f46e5) !important;
+    border: none !important;
+    font-weight: 600;
+    border-radius: 10px;
+    color: #fff !important;
+    padding: 10px !important;
+    transition: .25s;
+}
 
-        .btn-success {
-            background: #2b7a48 !important;
-            border-color: #2b7a48 !important;
-            border-radius: 8px;
-            font-weight: 600;
-        }
+.btn-primary:hover {
+    background: linear-gradient(145deg, #7c7efc, #5c54f5) !important;
+}
 
-        .btn-success:hover {
-            background: #1f5a36 !important;
-            border-color: #1f5a36 !important;
-        }
+.btn-outline-secondary,
+.btn-outline-primary {
+    background: #0f172a !important;
+    border: 1px solid #475569 !important;
+    color: #e2e8f0 !important;
+    border-radius: 10px;
+    transition: .25s;
+}
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+.btn-outline-secondary:hover,
+.btn-outline-primary:hover {
+    background: #1e293b !important;
+    border-color: #818cf8 !important;
+}
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+/* ----------------------------- */
+/*            MODAL              */
+/* ----------------------------- */
+
+.modal-content {
+    background: #1e293b !important;
+    border-radius: 14px;
+    padding: 10px;
+    border: 1px solid #475569;
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.45);
+}
+
+.modal-header h5 {
+    color: #f3f4f6;
+}
+
+.modal-body label {
+    color: #cbd5e1 !important;
+}
+
+/* ----------------------------- */
+/*          ANIMAÇÃO             */
+/* ----------------------------- */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------------------- */
+/*        RESPONSIVIDADE         */
+/* ----------------------------- */
+
+@media (max-width: 480px) {
+    body { padding: 10px; }
+
+    .login-container {
+        padding: 28px 20px;
+    }
+
+    button {
+        font-size: .95rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-container { width: 90%; }
+}
+
+</style>
+
     {% include "script.html" %}
     <script defer type="module" aria-modal="true" src="/js/login.js"></script>
 </body>
