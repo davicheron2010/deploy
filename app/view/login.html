@@ -133,25 +133,24 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    background: #0f172a; /* dark mais bonito */
+    background: #111827; /* BG escuro elegante */
     font-family: Arial, sans-serif;
 }
 
-/* Container */
+/* Container principal */
 .login-container {
     width: 420px;
     max-width: 100%;
     padding: 40px 35px;
-    background: #1e293b;
+    background: #1f2937;
     border-radius: 18px;
-    box-shadow: 0px 14px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 14px 40px rgba(0, 0, 0, 0.4);
     animation: fadeIn 0.5s ease;
 }
 
 /* Títulos */
 h2, .modal-title {
-    color: #f8fafc;
-    text-align: center;
+    color: #f9fafb;
 }
 
 /* ----------------------------- */
@@ -159,84 +158,75 @@ h2, .modal-title {
 /* ----------------------------- */
 
 .form-control {
-    background: #334155 !important;  
-    color: #f1f5f9 !important;        
-    border: 1px solid #475569 !important;
+    background: #374151 !important;  /* Dark sempre */
+    color: #f3f4f6 !important;       /* Texto claro sempre */
+    border: 1px solid #4b5563 !important;
     border-radius: 10px !important;
     transition: 0.25s;
 }
 
-/* Corrige autofill do Chrome (que deixava fundo claro) */
+/* Remove o fundo branco interno do Chrome */
 .form-control:-webkit-autofill,
 .form-control:-webkit-autofill:hover,
 .form-control:-webkit-autofill:focus {
-    -webkit-text-fill-color: #f1f5f9 !important;
-    box-shadow: 0 0 0px 1000px #334155 inset !important;
-    caret-color: #f1f5f9 !important;
+    -webkit-text-fill-color: #f3f4f6 !important;
+    box-shadow: 0 0 0px 1000px #374151 inset !important;
+    caret-color: #f3f4f6 !important;
 }
 
-/* Foco escuro */
+/* Foco totalmente dark */
 .form-control:focus {
-    background: #475569 !important;
+    background: #4b5563 !important;
     color: #ffffff !important;
-    border-color: #818cf8 !important;  
+    border-color: #818cf8 !important; /* lilás bonito */
     box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.35) !important;
 }
 
-/* ----------------------------- */
-/*  🛠️ CORREÇÃO DO LABEL BRANCO */
-/* ----------------------------- */
-
+/* Labels flutuantes em dark */
 .form-floating > label {
-    color: #cbd5e1 !important;
+    color: #d1d5db !important;
     background: transparent !important;
 }
 
+/* Label no foco */
 .form-floating > .form-control:focus ~ label {
-    background: transparent !important;
-    color: #c7d2fe !important;
+    color: #c7d2fe !important; /* lilás claro */
 }
 
+/* Label quando preenchido */
 .form-floating > .form-control:not(:placeholder-shown) ~ label {
-    background: transparent !important;
-    color: #e2e8f0 !important;
-}
-
-/* Bootstrap cria um fundo branco aqui — removemos */
-.form-floating label::after {
-    background: transparent !important;
+    color: #e5e7eb !important;
 }
 
 /* ----------------------------- */
-/*            BOTÕES             */
+/*          BOTÕES               */
 /* ----------------------------- */
 
 .btn-primary {
-    background: linear-gradient(145deg, #6366f1, #4f46e5) !important;
+    background: linear-gradient(145deg, #4f46e5, #4338ca) !important;
     border: none !important;
     font-weight: 600;
     border-radius: 10px;
     color: #fff !important;
-    padding: 10px !important;
-    transition: .25s;
+    transition: 0.25s;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(145deg, #7c7efc, #5c54f5) !important;
+    background: linear-gradient(145deg, #5b54ef, #4a3fd1) !important;
 }
 
 .btn-outline-secondary,
 .btn-outline-primary {
-    background: #0f172a !important;
-    border: 1px solid #475569 !important;
-    color: #e2e8f0 !important;
+    background: #111827 !important;
+    border: 1px solid #4b5563 !important;
+    color: #e5e7eb !important;
     border-radius: 10px;
-    transition: .25s;
+    transition: 0.25s;
 }
 
 .btn-outline-secondary:hover,
 .btn-outline-primary:hover {
-    background: #1e293b !important;
+    background: #1f2937 !important;
     border-color: #818cf8 !important;
 }
 
@@ -245,10 +235,10 @@ h2, .modal-title {
 /* ----------------------------- */
 
 .modal-content {
-    background: #1e293b !important;
+    background: #1f2937 !important;
     border-radius: 14px;
-    padding: 10px;
-    border: 1px solid #475569;
+    padding: 5px;
+    border: 1px solid #374151;
     box-shadow: 0px 10px 25px rgba(0,0,0,0.45);
 }
 
@@ -257,7 +247,7 @@ h2, .modal-title {
 }
 
 .modal-body label {
-    color: #cbd5e1 !important;
+    color: #d1d5db !important;
 }
 
 /* ----------------------------- */
