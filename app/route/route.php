@@ -6,8 +6,8 @@ use app\controller\Login;
 use app\middleware\Middleware;
 use Slim\Routing\RouteCollectorProxy;
 
-$app->get('/', Home::class . ':home');
-#$app->get('/home', Home::class . ':home')->add(Middleware::authentication());
+$app->get('/', Home::class . ':home')->add(Middleware::authentication());
+$app->get('/home', Home::class . ':home')->add(Middleware::authentication());
 $app->get('/login', Login::class . ':login');
 
 $app->group('/login', function (RouteCollectorProxy $group) {
@@ -16,8 +16,8 @@ $app->group('/login', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/usuario', function (RouteCollectorProxy $group) {
-    $group->get('/lista', User::class . ':lista');
-    $group->get('/cadastro', User::class . ':cadastro');
+    $group->get('/lista', User::class . ':lista')->add(Middleware::authentication());
+    $group->get('/cadastro', User::class . ':cadastro')->add(Middleware::authentication());
     $group->post('/insert', User::class . ':insert');
     $group->post('/delete', User::class . ':delete');
     $group->post('/listauser', User::class . ':listauser');

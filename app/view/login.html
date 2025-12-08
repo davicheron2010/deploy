@@ -41,7 +41,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title fw-semibold">Pre-Cadastro</h5>
-                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -99,7 +99,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title fw-semibold">Recuperar Senha</h5>
-                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="form-floating mb-2">
@@ -122,164 +122,182 @@
             </div>
         </div>
     </form>
-   <style>
-/* ----------------------------- */
-/*       🌙 DARK MODE CLEAN      */
-/* ----------------------------- */
 
-body {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background: #111827; /* BG escuro elegante */
-    font-family: Arial, sans-serif;
-}
+    <style>
+        /* ------------------------------------------------------ */
+        /*                   DARK MODE COMPLETO                   */
+        /* ------------------------------------------------------ */
 
-/* Container principal */
-.login-container {
-    width: 420px;
-    max-width: 100%;
-    padding: 40px 35px;
-    background: #1f2937;
-    border-radius: 18px;
-    box-shadow: 0px 14px 40px rgba(0, 0, 0, 0.4);
-    animation: fadeIn 0.5s ease;
-}
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: #111827;
+            font-family: Arial, sans-serif;
+        }
 
-/* Títulos */
-h2, .modal-title {
-    color: #f9fafb;
-}
+        /* Container principal */
+        .login-container {
+            width: 420px;
+            max-width: 100%;
+            padding: 40px 35px;
+            background: #1f2937;
+            border-radius: 18px;
+            box-shadow: 0px 14px 40px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.5s ease;
+        }
 
-/* ----------------------------- */
-/*      🔧 INPUTS DARK FIX       */
-/* ----------------------------- */
+        h2,
+        .modal-title {
+            color: #f9fafb;
+        }
 
-.form-control {
-    background: #374151 !important;  /* Dark sempre */
-    color: #f3f4f6 !important;       /* Texto claro sempre */
-    border: 1px solid #4b5563 !important;
-    border-radius: 10px !important;
-    transition: 0.25s;
-}
+        /* ------------------------------------------------------ */
+        /*             INPUTS — MODO DARK REAL OFICIAL            */
+        /* ------------------------------------------------------ */
 
-/* Remove o fundo branco interno do Chrome */
-.form-control:-webkit-autofill,
-.form-control:-webkit-autofill:hover,
-.form-control:-webkit-autofill:focus {
-    -webkit-text-fill-color: #f3f4f6 !important;
-    box-shadow: 0 0 0px 1000px #374151 inset !important;
-    caret-color: #f3f4f6 !important;
-}
+        .form-control {
+            background-color: #374151 !important;
+            color: #f3f4f6 !important;
+            border: 1px solid #4b5563 !important;
+            border-radius: 10px !important;
+            transition: 0.25s !important;
+            box-shadow: none !important;
+        }
 
-/* Foco totalmente dark */
-.form-control:focus {
-    background: #4b5563 !important;
-    color: #ffffff !important;
-    border-color: #818cf8 !important; /* lilás bonito */
-    box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.35) !important;
-}
+        /* FOCUS REAL — sem branco nunca */
+        .form-control:focus {
+            background-color: #4b5563 !important;
+            color: #fff !important;
+            border-color: #818cf8 !important;
+            box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.35) !important;
+        }
 
-/* Labels flutuantes em dark */
-.form-floating > label {
-    color: #d1d5db !important;
-    background: transparent !important;
-}
+        /* ------------------------------------------------------ */
+        /*           O MAIOR PROBLEMA DO BOOTSTRAP 5.3            */
+        /*           Label flutuante cria um QUADRADO BRANCO      */
+        /* ------------------------------------------------------ */
 
-/* Label no foco */
-.form-floating > .form-control:focus ~ label {
-    color: #c7d2fe !important; /* lilás claro */
-}
+        .form-floating>label::after {
+            background: transparent !important;
+            /* REMOVE BRANCO */
+        }
 
-/* Label quando preenchido */
-.form-floating > .form-control:not(:placeholder-shown) ~ label {
-    color: #e5e7eb !important;
-}
+        /* No focus */
+        .form-floating>.form-control:focus~label::after {
+            background: transparent !important;
+        }
 
-/* ----------------------------- */
-/*          BOTÕES               */
-/* ----------------------------- */
+        /* Quando preenchido */
+        .form-floating>.form-control:not(:placeholder-shown)~label::after {
+            background: transparent !important;
+        }
 
-.btn-primary {
-    background: linear-gradient(145deg, #4f46e5, #4338ca) !important;
-    border: none !important;
-    font-weight: 600;
-    border-radius: 10px;
-    color: #fff !important;
-    transition: 0.25s;
-}
+        /* ------------------------------------------------------ */
+        /*                      LABEL COLORS                      */
+        /* ------------------------------------------------------ */
 
-.btn-primary:hover {
-    background: linear-gradient(145deg, #5b54ef, #4a3fd1) !important;
-}
+        .form-floating>label {
+            color: #d1d5db !important;
+        }
 
-.btn-outline-secondary,
-.btn-outline-primary {
-    background: #111827 !important;
-    border: 1px solid #4b5563 !important;
-    color: #e5e7eb !important;
-    border-radius: 10px;
-    transition: 0.25s;
-}
+        .form-floating>.form-control:focus~label {
+            color: #c7d2fe !important;
+        }
 
-.btn-outline-secondary:hover,
-.btn-outline-primary:hover {
-    background: #1f2937 !important;
-    border-color: #818cf8 !important;
-}
+        .form-floating>.form-control:not(:placeholder-shown)~label {
+            color: #e5e7eb !important;
+        }
 
-/* ----------------------------- */
-/*            MODAL              */
-/* ----------------------------- */
+        /* ------------------------------------------------------ */
+        /*                Autofill (Chrome/Edge) fix               */
+        /* ------------------------------------------------------ */
 
-.modal-content {
-    background: #1f2937 !important;
-    border-radius: 14px;
-    padding: 5px;
-    border: 1px solid #374151;
-    box-shadow: 0px 10px 25px rgba(0,0,0,0.45);
-}
+        input.form-control:-webkit-autofill {
+            -webkit-text-fill-color: #f3f4f6 !important;
+            -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+        }
 
-.modal-header h5 {
-    color: #f3f4f6;
-}
+        input.form-control:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #4b5563 inset !important;
+        }
 
-.modal-body label {
-    color: #d1d5db !important;
-}
+        /* ------------------------------------------------------ */
+        /*                     BOTÕES / MODAL                    */
+        /* ------------------------------------------------------ */
 
-/* ----------------------------- */
-/*          ANIMAÇÃO             */
-/* ----------------------------- */
+        .btn-primary {
+            background: linear-gradient(145deg, #4f46e5, #4338ca) !important;
+            border: none !important;
+            color: #fff !important;
+            border-radius: 10px !important;
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+        .btn-outline-secondary,
+        .btn-outline-primary {
+            background: #111827 !important;
+            border: 1px solid #4b5563 !important;
+            color: #e5e7eb !important;
+        }
 
-/* ----------------------------- */
-/*        RESPONSIVIDADE         */
-/* ----------------------------- */
+        .modal-content {
+            background: #1f2937 !important;
+            border-radius: 14px !important;
+            border: 1px solid #374151 !important;
+        }
 
-@media (max-width: 480px) {
-    body { padding: 10px; }
+        .modal-header h5,
+        .modal-body label {
+            color: #d1d5db !important;
+        }
 
-    .login-container {
-        padding: 28px 20px;
-    }
+        /* ------------------------------------------------------ */
+        /*                         ANIMAÇÃO                       */
+        /* ------------------------------------------------------ */
 
-    button {
-        font-size: .95rem !important;
-    }
-}
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-@media (max-width: 768px) {
-    .login-container { width: 90%; }
-}
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-</style>
+        /* ------------------------------------------------------ */
+        /*                     RESPONSIVIDADE                     */
+        /* ------------------------------------------------------ */
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 28px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                width: 90%;
+            }
+        }
+
+        /* Botão de fechar branco (Bootstrap 5.3+) */
+        .btn-close {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath stroke='white' stroke-width='2' d='M2 2 L14 14 M14 2 L2 14'/%3E%3C/svg%3E") !important;
+            filter: none !important;
+            /* garante que não some */
+            opacity: 0.9;
+        }
+
+        /* Hover opcional */
+        .btn-close:hover {
+            opacity: 1;
+        }
+    </style>
 
     {% include "script.html" %}
     <script defer type="module" aria-modal="true" src="/js/login.js"></script>
