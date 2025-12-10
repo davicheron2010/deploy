@@ -1,0 +1,50 @@
+{% extends "main.html" %}
+
+{% block main %}
+
+<div class="container">
+    <form id="form">
+        <input type="hidden" id="id" name="id">
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-12 mt-3 mb-3">
+                    <a href="/empresa/cadastro" class="btn btn-primary btn-sm btn-success"><i
+                            class="fa-solid fa-user-plus"></i>
+                        Novo Empresa
+                    </a>
+                </div>
+                <div class="col-12">
+                    <h1><i class="fa-solid fa-users me-2"></i>
+                        Empresas Cadastradas
+                    </h1>
+                    <div class="col-6 mt-3">
+                        <div class="form-floating mb-3">
+                            <input type="search" class="form-control fs" id="pesquisa" name="pesquisa"
+                                placeholder="Pesquisar">
+                            <label for="pesquisa"><i class="fa-solid fa-magnifying-glass"></i>
+                                Digite seu Nome
+                            </label>
+                        </div>
+                    </div>
+                    <table class="table table-striped" id="tabela">
+                        <thead>
+                            <tr>
+                                <th><i class="fa-solid fa-fingerprint"></i>Código</th>
+                                <th><i class="fa-solid fa-user"></i>Nome</th>
+                                <th><i class="fa-solid fa-user"></i>Sobrenome</th>
+                                <th><i class="fa-solid fa-id-card"></i>CPF</th>
+                                <th><i class="fa-solid fa-id-card"></i>Rg</th>
+                                <th><i class="fa-solid fa-cog"></i>Ações</th>
+                            </tr>
+                        </thead>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endblock %}
+    {% block script %}
+    {% include "script.html" %}
+    <script defer type="module" src="/js/listaempresa.js"></script>
+    {% endblock %}
