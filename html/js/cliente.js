@@ -27,6 +27,8 @@ Salvar.addEventListener('click', async () => {
         title: "Cadastro realizado com sucesso!",
         icon: "success",
         draggable: true
+    }).then(()=>{
+        window.location.href = "/cliente/lista"
     });
 
 });
