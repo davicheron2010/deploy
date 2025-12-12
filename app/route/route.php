@@ -27,12 +27,15 @@ $app->group('/usuario', function (RouteCollectorProxy $group) {
     $group->post('/listauser', User::class . ':listauser');
 });
 $app->group('/cliente', function (RouteCollectorProxy $group) {
-    $group->get('/lista', Cliente::class . ':lista');
-    $group->get('/cadastro', Cliente::class . ':cadastro');
+    $group->get('/lista', Cliente::class . ':lista');#->add(Middleware::authentication());
+    $group->get('/cadastro', Cliente::class . ':cadastro');#->add(Middleware::authentication());
+    $group->get('/alterar/{id}', Cliente::class . ':alterar');#->add(Middleware::authentication());
     $group->post('/insert', Cliente::class . ':insert');
+    $group->post('/update', Cliente::class . ':update');
     $group->post('/delete', Cliente::class . ':delete');
     $group->post('/listacliente', Cliente::class . ':listacliente');
 });
+
 $app->group('/fornecedor', function (RouteCollectorProxy $group) {
     $group->get('/lista', Fornecedor::class . ':lista');
     $group->get('/cadastro', Fornecedor::class . ':cadastro');

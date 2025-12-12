@@ -10,3 +10,12 @@ define('DIR_VIEW', ROOT . '/app/view/');
 #$_SERVER['REQUEST_SCHEME'] : indica o protocolo utilizado na requisição (http ou https)
 #criamos uma constante HOME que representa a url raiz do projeto
 define('HOME', $_SERVER['HTTP_CF_VISITOR'] . '://' . $_SERVER['HTTP_HOST']);
+
+define('CONFIG_SMTP_EMAIL', [
+    'host' => 'smtp.titan.email',
+    'port' => 587,
+    'user' => 'noreplay@mkt.fanorte.edu.br',
+    'passwd' => '@w906083W@',
+    'from_user' => 'Mercantor',
+    'from_email' => 'noreplay@mkt.fanorte.edu.br'
+]);
