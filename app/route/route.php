@@ -12,7 +12,7 @@ use Slim\Routing\RouteCollectorProxy;
 $app->get('/', Home::class . ':home')->add(Middleware::authentication());
 
 $app->get('/home', Home::class . ':home')->add(Middleware::authentication());
-$app->get('/login', Login::class . ':login')->add(Middleware::authentication());
+$app->get('/login', Login::class . ':login');
 
 $app->group('/login', function (RouteCollectorProxy $group) {
     $group->post('/precadastro', Login::class . ':precadastro');
