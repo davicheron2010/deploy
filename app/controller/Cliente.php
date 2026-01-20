@@ -5,6 +5,7 @@ namespace app\controller;
 use app\database\builder\SelectQuery;
 use app\database\builder\InsertQuery;
 use app\database\builder\DeleteQuery;
+use app\database\builder\UpdateQuery;
 
 class Cliente extends Base
 {
@@ -22,47 +23,61 @@ class Cliente extends Base
     public function insert($request, $response)
     {
         try {
-            $nome = $_POST['nome'];
-            $sobrenome = $_POST['sobrenome'];
-            $cpf = $_POST['cpf'];
-            $rg = $_POST['rg'];
-            $FieldsAndValues = [
-                'nome_fantasia' => $nome,
-                'sobrenome_razao' => $sobrenome,
-                'cpf_cnpj' => $cpf,
-                'rg_ie' => $rg
+            #Captura os dados do form
+            $form = $request->getParsedBody();
+            #Capturar os dados do usuário.
+            $dadosCliente = [
+                'nome_fantasia' => $form['nome_fantasia'],
+                'sobrenome_razao' => $form['sobrenome_razao'],
+                'cpf_cnpj' => $form['cpf_cnpj'],
+                'rg_ie' => $form['rg_ie'],
+                'senha' => password_hash($form['senhaCadastro'], PASSWORD_DEFAULT)
             ];
-            if (is_null($nome) || $nome === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o nome!', 'id' => 0]);
-                die;
+            $IsInseted = InsertQuery::table('cliente')->save($dadosCliente);
+            if (!$IsInseted) {
+                return $this->SendJson(
+                    $response,
+                    ['status' => false, 'msg' => 'Restrição: ' . $IsInseted, 'id' => 0],
+                    403
+                );
             }
-            if (is_null($sobrenome) ||  $sobrenome === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o sobrenome!', 'id' => 0]);
-                die;
-            }
-            if (is_null($cpf) || $cpf === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o cpf!', 'id' => 0]);
-                die;
-            }
-            if (is_null($rg) || $rg === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o rg!', 'id' => 0]);
-                die;
-            }
-            $IsSave = InsertQuery::table('cliente')->save($FieldsAndValues);
-
-            if (!$IsSave) {
-                echo json_encode(['status' => false, 'msg' => $IsSave, 'id' => 0]);
-                die;
-            }
-            echo json_encode(['status' => true, 'msg' => 'Salvo com sucesso!', 'id' => 0]);
-            die;
-        } catch (\Throwable $th) {
-            //throw $th;
+            #Captura o código do ultimo usuário cadastrado na tabela de usuário
+            $id = SelectQuery::select('id')->from('cliente')->order('id', 'desc')->fetch();
+            #Colocamos o ID do ultimo usuário cadastrado na varaivel $id_cliente.
+            $id_cliente = $id['id'];
+            #Inserimos o e-mail
+            $dadosContato = [
+                'id_cliente' => $id_cliente,
+                'tipo' => 'email',
+                'contato' => $form['email']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            $dadosContato = [];
+            #Inserimos o celular
+            $dadosContato = [
+                'id_cliente' => $id_cliente,
+                'tipo' => 'celular',
+                'contato' => $form['celular']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            $dadosContato = [];
+            #Inserimos o WhastaApp
+            $dadosContato = [
+                'id_cliente' => $id_cliente,
+                'tipo' => 'whatsapp',
+                'contato' => $form['whatsapp']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Cadastro realizado com sucesso!', 'id' => $id_cliente], 201);
+        } catch (\Exception $e) {
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
+
     public function cadastro($request, $response)
     {
         $dadosTemplate = [
+            'acao' => 'c',
             'titulo' => 'Cadastro de Cliente'
         ];
         return $this->getTwig()
@@ -96,7 +111,7 @@ class Cliente extends Base
         ];
 
         # Coluna escolhida
-        $orderField = $fields[$order];
+        $orderField = (intval($order) > 8) ? $fields[$order] : $fields[0];
 
         # Termo pesquisado
         $term = $form['search']['value'];
@@ -162,7 +177,7 @@ class Cliente extends Base
     {
         $id = $args['id'];
         $cliente = SelectQuery::select()
-            ->from('cliente')
+            ->from('vw_cliente_contatos')
             ->where('id', '=', $id)
             ->fetch();
 
@@ -176,6 +191,29 @@ class Cliente extends Base
             ->render($response, $this->setView('cliente'), $dadosTemplate)
             ->withHeader('Content-Type', 'text/html')
             ->withStatus(200);
+    }
+        public function update($request, $response)
+    {
+        try {
+            $form = $request->getParsedBody();
+            $id = $form['id'];
+            if (is_null($id) || empty($id)) {
+                return $this->SendJson($response, ['status' => false, 'msg' => 'Por favor informe o ID', 'id' => 0], 500);
+            }
+            $FieldAndValues = [
+                'nome_fantasia' => $form['nome_fantasia'],
+                'sobrenome_razao' => $form['sobrenome_razao'],
+                'cpf_cnpj' => $form['cpf_cnpj'],
+                'rg_ie' => $form['rg_ie']
+            ];
+            $IsUpdate = UpdateQuery::table('cliente')->set($FieldAndValues)->where('id', '=', $id)->update();
+            if (!$IsUpdate) {
+                return $this->SendJson($response, ['status' => false, 'msg' => 'Restrição: ' . $IsUpdate, 'id' => 0], 403);
+            }
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Atualizado com sucesso!', 'id' => $id]);
+        } catch (\Exception $e) {
+            return $this->SendJson($response, ['status' => false, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
+        }
     }
     public function delete($request, $response)
     {

@@ -32,7 +32,7 @@ async function Delete(id) {
             timer: 3000,
             timerProgressBar: true,
             didOpen: () => {
-            Swal.showLoading();
+                Swal.showLoading();
             }
         });
         return;

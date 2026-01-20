@@ -41,7 +41,7 @@ async function Delete(id) {
         title: "Removido com sucesso!",
         icon: "success",
         html: response.msg,
-        timer: 1000,
+        timer: 3000,
         timerProgressBar: true,
         didOpen: () => {
             Swal.showLoading();

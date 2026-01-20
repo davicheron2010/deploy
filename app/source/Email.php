@@ -1,6 +1,6 @@
 <?php
 
-namespace App\source;
+namespace app\source;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -10,7 +10,7 @@ class Email
     private $mail;
     private array $data;
     private $error;
-    public function __construct() 
+    public function __construct()
     { 
         $this->data = [];
         $this->mail = new PHPMailer(true);
@@ -20,7 +20,7 @@ class Email
         $this->mail->Host = CONFIG_SMTP_EMAIL['host'];
         $this->mail->SMTPAuth = true;
         $this->mail->Username = CONFIG_SMTP_EMAIL['user'];
-        $this->mail->Password = CONFIG_SMTP_EMAIL['password'];
+        $this->mail->Password = CONFIG_SMTP_EMAIL['passwd'];
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mail->Port = CONFIG_SMTP_EMAIL['port'];
     }
@@ -33,6 +33,7 @@ class Email
         $self->data['recipient_name'] = $recipient_name;
         $self->data['recipient_email'] = $recipient_email;
         return $self;
+      
     }
     public function attach(string $filePath, string $fileName): self
     {

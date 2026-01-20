@@ -5,6 +5,7 @@ namespace app\controller;
 use app\database\builder\SelectQuery;
 use app\database\builder\InsertQuery;
 use app\database\builder\DeleteQuery;
+use app\database\builder\UpdateQuery;
 
 class Fornecedor extends Base
 {
@@ -22,47 +23,61 @@ class Fornecedor extends Base
     public function insert($request, $response)
     {
         try {
-            $nome = $_POST['nome'];
-            $sobrenome = $_POST['sobrenome'];
-            $cpf = $_POST['cpf'];
-            $rg = $_POST['rg'];
-            $FieldsAndValues = [
-                'nome_fantasia' => $nome,
-                'sobrenome_razao' => $sobrenome,
-                'cpf_cnpj' => $cpf,
-                'rg_ie' => $rg
+            #Captura os dados do form
+            $form = $request->getParsedBody();
+            #Capturar os dados do usuário.
+            $dadosFornecedor = [
+                'nome_fantasia' => $form['nome_fantasia'],
+                'sobrenome_razao' => $form['sobrenome_razao'],
+                'cpf_cnpj' => $form['cpf_cnpj'],
+                'rg_ie' => $form['rg_ie'],
+                'senha' => password_hash($form['senhaCadastro'], PASSWORD_DEFAULT)
             ];
-            if (is_null($nome) || $nome === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o nome!', 'id' => 0]);
-                die;
+            $IsInseted = InsertQuery::table('fornecedor')->save($dadosFornecedor);
+            if (!$IsInseted) {
+                return $this->SendJson(
+                    $response,
+                    ['status' => false, 'msg' => 'Restrição: ' . $IsInseted, 'id' => 0],
+                    403
+                );
             }
-            if (is_null($sobrenome) ||  $sobrenome === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o sobrenome!', 'id' => 0]);
-                die;
-            }
-            if (is_null($cpf) || $cpf === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o cpf!', 'id' => 0]);
-                die;
-            }
-            if (is_null($rg) || $rg === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o rg!', 'id' => 0]);
-                die;
-            }
-            $IsSave = InsertQuery::table('fornecedor')->save($FieldsAndValues);
-
-            if (!$IsSave) {
-                echo json_encode(['status' => false, 'msg' => $IsSave, 'id' => 0]);
-                die;
-            }
-            echo json_encode(['status' => true, 'msg' => 'Salvo com sucesso!', 'id' => 0]);
-            die;
-        } catch (\Throwable $th) {
-            //throw $th;
+            #Captura o código do ultimo fornecedor cadastrado na tabela de fornecedor
+            $id = SelectQuery::select('id')->from('fornecedor')->order('id', 'desc')->fetch();
+            #Colocamos o ID do ultimo fornecedor cadastrado na varaivel $id_fornecedor.
+            $id_fornecedor = $id['id'];
+            #Inserimos o e-mail
+            $dadosContato = [
+                'id_fornecedor' => $id_fornecedor,
+                'tipo' => 'email',
+                'contato' => $form['email']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            $dadosContato = [];
+            #Inserimos o celular
+            $dadosContato = [
+                'id_fornecedor' => $id_fornecedor,
+                'tipo' => 'celular',
+                'contato' => $form['celular']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            $dadosContato = [];
+            #Inserimos o WhastaApp
+            $dadosContato = [
+                'id_fornecedor' => $id_fornecedor,
+                'tipo' => 'whatsapp',
+                'contato' => $form['whatsapp']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Cadastro realizado com sucesso!', 'id' => $id_fornecedor], 201);
+        } catch (\Exception $e) {
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
+
     public function cadastro($request, $response)
     {
         $dadosTemplate = [
+            'acao' => 'c',
             'titulo' => 'Cadastro de fornecedor'
         ];
         return $this->getTwig()
@@ -72,59 +87,88 @@ class Fornecedor extends Base
     }
     public function listafornecedor($request, $response)
     {
-        #Captura todas a variaveis de forma mais segura VARIAVEIS POST.
+
+
+        # Captura todas as variáveis de forma segura
         $form = $request->getParsedBody();
-        #Qual a coluna da tabela deve ser ordenada.
+
+        # Ordenação
         $order = $form['order'][0]['column'];
-        #Tipo de ordenação
         $orderType = $form['order'][0]['dir'];
-        #Em qual registro se inicia o retorno dos registro, OFFSET
+
+        # Paginação
         $start = $form['start'];
-        #Limite de registro a serem retornados do banco de dados LIMIT
         $length = $form['length'];
+
+        # Mapeamento de colunas para ordenação
         $fields = [
             0 => 'id',
             1 => 'nome_fantasia',
             2 => 'sobrenome_razao',
             3 => 'cpf_cnpj',
-            4 => 'rg_ie'
+            4 => 'rg_ie',
+            5 => 'email',
+            6 => 'celular',
+            7 => 'whatsapp'
         ];
-        #Capturamos o nome do capo a ser ordenado.
-        $orderField = $fields[$order];
-        #O termo pesquisado
+
+        # Coluna escolhida
+        $orderField = (intval($order) > 8) ? $fields[$order] : $fields[0];
+
+        # Termo pesquisado
         $term = $form['search']['value'];
-        $query = SelectQuery::select('id,nome_fantasia,sobrenome_razao,cpf_cnpj,rg_ie')->from('fornecedor');
-        if (!is_null($term) && ($term !== '')) {
-            $query->where('fornecedor.nome_fantasia', 'ilike', "%{$term}%", 'or')
-                ->where('fornecedor.sobrenome_razao', 'ilike', "%{$term}%", 'or')
-                ->where('fornecedor.cpf_cnpj', 'ilike', "%{$term}%", 'or')
-                ->where('fornecedor.rg_ie', 'ilike', "%{$term}%");
+
+        # Agora a busca é feita na VIEW
+        $query = SelectQuery::select('*')->from('vw_fornecedor_contatos');
+
+        # Filtros de pesquisa
+        if (!empty($term)) {
+
+            $query->where('nome_fantasia', 'ilike', "%{$term}%", 'or')
+                ->where('sobrenome_razao', 'ilike', "%{$term}%", 'or')
+                ->where('cpf_cnpj', 'ilike', "%{$term}%", 'or')
+                ->where('rg_ie', 'ilike', "%{$term}%", 'or')
+                ->where('email', 'ilike', "%{$term}%", 'or')
+                ->where('celular', 'ilike', "%{$term}%", 'or')
+                ->where('whatsapp', 'ilike', "%{$term}%");
         }
 
-        if (!is_null($order) && ($order !== '')) {
+        # Ordenação dinâmica
+        if (!empty($order)) {
             $query->order($orderField, $orderType);
         }
-        $fornecedores = $query
+
+        # Paginação
+        $users = $query
             ->limit($length, $start)
             ->fetchAll();
-        $fornecedorData = [];
-        foreach ($fornecedores as $key => $value) {
-            $fornecedorData[$key] = [
+
+        # Montagem dos dados
+        $userData = [];
+        foreach ($users as $key => $value) {
+            $userData[$key] = [
                 $value['id'],
                 $value['nome_fantasia'],
                 $value['sobrenome_razao'],
                 $value['cpf_cnpj'],
                 $value['rg_ie'],
-                "<button type= 'button'  onclick='Editar(" . $value['id'] . ");' class='btn btn-warning'>Editar</button>
-                 <button type= 'button'  onclick='Delete(" . $value['id'] . ");' class='btn btn-danger'>Excluir</button>"
+                $value['email'] ?? '',      // deixa em branco se NULL
+                $value['celular'] ?? '',    // deixa em branco se NULL
+                $value['whatsapp'] ?? '',   // deixa em branco se NULL
+                "<a href='/fornecedor/alterar/{$value['id']}' class='btn btn-warning'>Editar</a>
+         <button type='button' onclick='Delete(" . $value['id'] . ");' class='btn btn-danger'>Excluir</button>"
             ];
         }
+
+
+        # Resposta final
         $data = [
             'status' => true,
-            'recordsTotal' => count($fornecedores),
-            'recordsFiltered' => count($fornecedores),
-            'data' => $fornecedorData
+            'recordsTotal' => count($users),
+            'recordsFiltered' => count($users),
+            'data' => $userData
         ];
+
         $payload = json_encode($data);
 
         $response->getBody()->write($payload);
@@ -133,6 +177,7 @@ class Fornecedor extends Base
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(200);
     }
+
     public function delete($request, $response)
     {
         try {
@@ -150,6 +195,49 @@ class Fornecedor extends Base
         } catch (\Throwable $th) {
             echo "Erro: " . $th->getMessage();
             die;
+        }
+    }
+    public function alterar($request, $response, $args)
+    {
+        try {
+            $id = $args['id'];
+            $suplier = SelectQuery::select()->from('vw_fornecedor_contatos')->where('id', '=', $id)->fetch();
+            $dadosTemplate = [
+                'acao' => 'e',
+                'id' => $id,
+                'titulo' => 'Cadastro e edição',
+                'fornecedor' => $suplier
+            ];
+            return $this->getTwig()
+                ->render($response, $this->setView('fornecedor'), $dadosTemplate)
+                ->withHeader('Content-Type', 'text/html')
+                ->withStatus(200);
+        } catch (\Exception $e) {
+            var_dump($e);
+        }
+    }
+    public function update($request, $response)
+    {
+        try {
+            $form = $request->getParsedBody();
+            $id = $form['id'];
+            if (is_null($id) || empty($id)) {
+                return $this->SendJson($response, ['status' => false, 'msg' => 'Por favor informe o ID', 'id' => 0], 500);
+            }
+            $FieldAndValues = [
+                'nome_fantasia' => $form['nome_fantasia'],
+                'sobrenome_razao' => $form['sobrenome_razao'],
+                'cpf_cnpj' => $form['cpf_cnpj'],
+                'rg_ie' => $form['rg_ie'],
+                //'data_nascimento' => $form['data_nascimento']
+            ];
+            $IsUpdate = UpdateQuery::table('fornecedor')->set($FieldAndValues)->where('id', '=', $id)->update();
+            if (!$IsUpdate) {
+                return $this->SendJson($response, ['status' => false, 'msg' => 'Restrição: ' . $IsUpdate, 'id' => 0], 403);
+            }
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Atualizado com sucesso!', 'id' => $id]);
+        } catch (\Exception $e) {
+            return $this->SendJson($response, ['status' => false, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
 }

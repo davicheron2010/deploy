@@ -32,6 +32,7 @@ preCadastro.addEventListener('click', async () => {
         console.log(error);
     }
 });
+
 Login.addEventListener('click', async () => {
     try {
         const response = await Requests.SetForm('form').Post('/login/autenticar');

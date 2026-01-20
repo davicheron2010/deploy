@@ -5,6 +5,7 @@ namespace app\controller;
 use app\database\builder\SelectQuery;
 use app\database\builder\InsertQuery;
 use app\database\builder\DeleteQuery;
+use app\database\builder\UpdateQuery;
 
 class User extends Base
 {
@@ -22,51 +23,61 @@ class User extends Base
     }
     public function insert($request, $response)
     {
-
         try {
-            $nome = $_POST['nome'];
-
-            $sobrenome = $_POST['sobrenome'];
-            $cpf = $_POST['cpf'];
-            $rg = $_POST['rg'];
-
-            $FieldsAndValues = [
-                'nome' => $nome,
-                'sobrenome' => $sobrenome,
-                'cpf' => $cpf,
-                'rg' => $rg
+            #Captura os dados do form
+            $form = $request->getParsedBody();
+            #Capturar os dados do usuário.
+            $dadosUsuario = [
+                'nome' => $form['nome'],
+                'sobrenome' => $form['sobrenome'],
+                'cpf' => $form['cpf'],
+                'rg' => $form['rg'],
+                'senha' => password_hash($form['senhaCadastro'], PASSWORD_DEFAULT)
             ];
-            if (is_null($nome) || $nome === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o nome!', 'id' => 0]);
-                die;
+            $IsInseted = InsertQuery::table('usuario')->save($dadosUsuario);
+            if (!$IsInseted) {
+                return $this->SendJson(
+                    $response,
+                    ['status' => false, 'msg' => 'Restrição: ' . $IsInseted, 'id' => 0],
+                    403
+                );
             }
-            if (is_null($sobrenome) ||  $sobrenome === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o sobrenome!', 'id' => 0]);
-                die;
-            }
-            if (is_null($cpf) || $cpf === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o cpf!', 'id' => 0]);
-                die;
-            }
-            if (is_null($rg) || $rg === '') {
-                echo json_encode(['status' => false, 'msg' => 'Por favor informe o rg!', 'id' => 0]);
-                die;
-            }
-            $IsSave = InsertQuery::table('usuario')->save($FieldsAndValues);
-
-            if (!$IsSave) {
-                echo json_encode(['status' => false, 'msg' => $IsSave, 'id' => 0]);
-                die;
-            }
-            echo json_encode(['status' => true, 'msg' => 'Salvo com sucesso!', 'id' => 0]);
-            die;
-        } catch (\Throwable $th) {
-            //throw $th;
+            #Captura o código do ultimo usuário cadastrado na tabela de usuário
+            $id = SelectQuery::select('id')->from('usuario')->order('id', 'desc')->fetch();
+            #Colocamos o ID do ultimo usuário cadastrado na varaivel $id_usuario.
+            $id_usuario = $id['id'];
+            #Inserimos o e-mail
+            $dadosContato = [
+                'id_usuario' => $id_usuario,
+                'tipo' => 'email',
+                'contato' => $form['email']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            $dadosContato = [];
+            #Inserimos o celular
+            $dadosContato = [
+                'id_usuario' => $id_usuario,
+                'tipo' => 'celular',
+                'contato' => $form['celular']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            $dadosContato = [];
+            #Inserimos o WhastaApp
+            $dadosContato = [
+                'id_usuario' => $id_usuario,
+                'tipo' => 'whatsapp',
+                'contato' => $form['whatsapp']
+            ];
+            InsertQuery::table('contato')->save($dadosContato);
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Cadastro realizado com sucesso!', 'id' => $id_usuario], 201);
+        } catch (\Exception $e) {
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
     public function cadastro($request, $response)
     {
         $dadosTemplate = [
+            'acao' => 'c',
             'titulo' => 'Cadastro de usuário'
         ];
         return $this->getTwig()
@@ -74,18 +85,18 @@ class User extends Base
             ->withHeader('Content-Type', 'text/html')
             ->withStatus(200);
     }
-    public function listauser($request, $response)
+    public function listuser($request, $response)
     {
         # Captura todas as variáveis de forma segura
         $form = $request->getParsedBody();
 
         # Ordenação
-        $order = $form['order'][0]['column'];
-        $orderType = $form['order'][0]['dir'];
+        $order = $form['order'][0]['column'] ?? 0;
+        $orderType = $form['order'][0]['dir'] ?? 'asc';
 
         # Paginação
-        $start = $form['start'];
-        $length = $form['length'];
+        $start = $form['start'] ?? 0;
+        $length = $form['length'] ?? 10;
 
         # Mapeamento de colunas para ordenação
         $fields = [
@@ -93,19 +104,20 @@ class User extends Base
             1 => 'nome',
             2 => 'sobrenome',
             3 => 'cpf',
+            6 => 'rg',
             4 => 'email',
             5 => 'celular',
-            6 => 'whatsapp'
+            7 => 'whatsapp'
         ];
 
         # Coluna escolhida
-        $orderField = $fields[$order];
+        $orderField = (intval($order) > 8) ? $fields[$order] : $fields[0];
 
         # Termo pesquisado
         $term = $form['search']['value'];
 
         # Agora a busca é feita na VIEW
-        $query = SelectQuery::select('*')->from('vw_usuario_contatos');
+        $query = SelectQuery::select()->from('vw_usuario_contatos');
 
         # Filtros de pesquisa
         if (!empty($term)) {
@@ -136,15 +148,14 @@ class User extends Base
                 $value['nome'],
                 $value['sobrenome'],
                 $value['cpf'],
+                $value['rg'],
                 $value['email'] ?? '',      // deixa em branco se NULL
                 $value['celular'] ?? '',    // deixa em branco se NULL
                 $value['whatsapp'] ?? '',   // deixa em branco se NULL
-                "<button class='btn btn-warning'>Editar</button>
+                "<a href='/usuario/alterar/{$value['id']}' class='btn btn-warning'>Editar</a>
          <button type='button' onclick='Delete(" . $value['id'] . ");' class='btn btn-danger'>Excluir</button>"
             ];
         }
-
-
         # Resposta final
         $data = [
             'status' => true,
@@ -152,14 +163,7 @@ class User extends Base
             'recordsFiltered' => count($users),
             'data' => $userData
         ];
-
-        $payload = json_encode($data);
-
-        $response->getBody()->write($payload);
-
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(200);
+        return $this->SendJson($response, $data);
     }
 
     public function delete($request, $response)
@@ -179,6 +183,49 @@ class User extends Base
         } catch (\Throwable $th) {
             echo "Erro: " . $th->getMessage();
             die;
+        }
+    }
+    public function alterar($request, $response, $args)
+    {
+        try {
+            $id = $args['id'];
+            $user = SelectQuery::select()->from('vw_usuario_contatos')->where('id', '=', $id)->fetch();
+            $dadosTemplate = [
+                'acao' => 'e',
+                'id' => $id,
+                'titulo' => 'Cadastro e edição',
+                'user' => $user
+            ];
+            return $this->getTwig()
+                ->render($response, $this->setView('user'), $dadosTemplate)
+                ->withHeader('Content-Type', 'text/html')
+                ->withStatus(200);
+        } catch (\Exception $e) {
+            var_dump($e);
+        }
+    }
+    public function update($request, $response)
+    {
+        try {
+            $form = $request->getParsedBody();
+            $id = $form['id'];
+            if (is_null($id) || empty($id)) {
+                return $this->SendJson($response, ['status' => false, 'msg' => 'Por favor informe o ID', 'id' => 0], 500);
+            }
+
+            $FieldAndValues = [
+                'nome' => $form['nome'],
+                'sobrenome' => $form['sobrenome'],
+                'cpf' => $form['cpf'],
+                'rg' => $form['rg']
+            ];
+            $IsUpdate = UpdateQuery::table('usuario')->set($FieldAndValues)->where('id', '=', $id)->update();
+            if (!$IsUpdate) {
+                return $this->SendJson($response, ['status' => false, 'msg' => 'Restrição: ' . $IsUpdate, 'id' => 0], 403);
+            }
+            return $this->SendJson($response, ['status' => true, 'msg' => 'Atualizado com sucesso!', 'id' => $id]);
+        } catch (\Exception $e) {
+            return $this->SendJson($response, ['status' => false, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
 }

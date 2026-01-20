@@ -113,7 +113,7 @@ class Login extends Base
             if (!password_verify($form['senha'], $user['senha'])) {
                 return $this->SendJson(
                     $response,
-                    ['status' => false, 'msg' => 'Usuário ou senha inválidossss!', 'id' => 0],
+                    ['status' => false, 'msg' => 'Usuário ou senha inválidos!', 'id' => 0],
                     403
                 );
             }
@@ -121,7 +121,7 @@ class Login extends Base
             if (password_needs_rehash($user['senha'], PASSWORD_DEFAULT)) {
                 UpdateQuery::table('usuario')->set(['senha' => password_hash($form['senha'], PASSWORD_DEFAULT)])->where('id', '=', $user['id'])->update();
             }
-
+            $_SESSION['usuario'] = [];
             $_SESSION['usuario'] = [
                 'id' => $user['id'],
                 'nome' => $user['nome'],
@@ -137,7 +137,6 @@ class Login extends Base
                 'data_cadastro' => $user['data_cadastro'],
                 'data_alteracao' => $user['data_alteracao'],
             ];
-
             return $this->SendJson(
                 $response,
                 ['status' => true, 'msg' => 'Seja bem-vindo de volta!', 'id' => $user['id']],
