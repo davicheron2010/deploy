@@ -44,7 +44,7 @@ configurar_postgresql() {
 criar_tabelas() 
 
     sudo -u postgres psql -d "$NOME_BANCO" -c "
-    CREATE TABLE usuario (
+    CREATE TABLE IF NOT EXISTS usuario (
         id BIGSERIAL PRIMARY KEY,
         nome TEXT,
         sobrenome TEXT,
@@ -59,7 +59,7 @@ criar_tabelas()
     );
     "
     sudo -u postgres psql -d "$NOME_BANCO" -c "
-    CREATE TABLE cliente (
+    CREATE TABLE IF NOT EXISTS cliente (
         id BIGSERIAL PRIMARY KEY,
         nome_fantasia TEXT,
         sobrenome_razao TEXT,
@@ -73,7 +73,7 @@ criar_tabelas()
     );
     "
     sudo -u postgres psql -d "$NOME_BANCO" -c "
-    CREATE TABLE fornecedor (
+    CREATE TABLE IF NOT EXISTS fornecedor (
         id BIGSERIAL PRIMARY KEY,
         nome_fantasia TEXT,
         sobrenome_razao TEXT,
@@ -87,7 +87,7 @@ criar_tabelas()
     );
     "
     sudo -u postgres psql -d "$NOME_BANCO" -c "
-    CREATE TABLE empresa (
+    CREATE TABLE IF NOT EXISTS empresa (
         id BIGSERIAL PRIMARY KEY,
         nome_fantasia TEXT,
         razao_social TEXT,
@@ -103,7 +103,7 @@ criar_tabelas()
 
 
     sudo -u postgres psql -d "$NOME_BANCO" -c "
-    CREATE TABLE contato (
+    CREATE TABLE IF NOT EXISTS contato (
         id BIGSERIAL PRIMARY KEY,
         id_usuario BIGINT REFERENCES usuario(id) on update cascade on delete cascade,
         id_cliente BIGINT REFERENCES cliente(id) on update cascade on delete cascade,
